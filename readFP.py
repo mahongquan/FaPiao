@@ -88,12 +88,14 @@ def readfile(fn):
 	ncols = table.ncols
 	begin=False
 	dan=[]
+	errf=open("err.txt","w")
 	for i in range(nrows)[2:]:
 		print(i,table.row_values(i))
 		di=Contact()
 		dt=str(table.row_values(i)[0]).replace(".","-")
 		if dt.replace(" ","")!="":
 			di.kaipiao_date=dt
+		di.zzshui=True
 		di.danwei=table.row_values(i)[1]
 		di.name=table.row_values(i)[2]
 		di.duifangdanwei=table.row_values(i)[3]
@@ -115,7 +117,11 @@ def readfile(fn):
 		else:
 			di.shui=shui
 		di.state=table.row_values(i)[10]
-		di.save()
+		try:
+			di.save()
+		except django.db.utils.IntegrityError as e:
+			errf.write(str(table.row_values(i))+"\n")
+	errf.close()
 if __name__=="__main__":
 	readfile("data.xls")
 

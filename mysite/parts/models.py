@@ -16,7 +16,7 @@ class Contact(models.Model,myutil.MyModel):
     name =  models.CharField(max_length=30,verbose_name="姓名",null=True,blank=True)#姓名
     nashuiren_code =  models.CharField(max_length=30,verbose_name="纳税人识别号")#纳税人识别号
     kaipiao_date = models.DateField(null=True,blank=True,verbose_name="日期",default=datetime.datetime.now)#时间
-    bh=models.CharField(max_length=30,verbose_name="发票号")#发票号
+    bh=models.CharField(unique=True,max_length=30,verbose_name="发票号")#发票号
     money=  models.FloatField(default=0.0,verbose_name="含税金额")#含税金额
     shui=  models.FloatField(default=0.0,verbose_name="税额")#税额
     state =  models.CharField(max_length=30,verbose_name="发票入账情况",null=True,blank=True)#发票入账情况
