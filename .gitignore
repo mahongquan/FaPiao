@@ -4,7 +4,6 @@ django
 media/*
 rest_framework/*
 __pycache__
-data.sqlite
 build
 node_modules
 jspm_packages

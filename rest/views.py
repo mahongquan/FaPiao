@@ -425,6 +425,7 @@ def create_contact(request):
         output={"success":False,"message":message}
         return HttpResponse(json.dumps(output, ensure_ascii=False,cls=MyEncoder))
     except django.db.utils.IntegrityError as e:
+        print(e)
         info = sys.exc_info()
         message=""
         for file, lineno, function, text in traceback.extract_tb(info[2]):
