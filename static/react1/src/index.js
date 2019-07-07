@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App_bootstrap';
+import "./react-datetime.css"
+import "./index.css"
 ReactDOM.render(<App />, document.getElementById('root'));
 // //import BasicExample from './BasicExample'
 // //ReactDOM.render(<BasicExample />, document.getElementById('root'));

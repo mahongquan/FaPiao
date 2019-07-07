@@ -1,24 +1,10 @@
-// duifangdanwei = models.CharField(max_length=30,verbose_name="对方单位",null=True,blank=True)#对方单位
-//     danwei = models.CharField(max_length=30,verbose_name="用户单位",null=True,blank=True)#用户单位
-//     xianmu=models.CharField(max_length=30,verbose_name="项目名称",null=True,blank=True)#项目名称
-//     xianmujiancheng=models.CharField(unique=True,max_length=30,verbose_name="项目简称",null=True,blank=True)#项目简称
-//     name =  models.CharField(max_length=30,verbose_name="姓名",null=True,blank=True)#姓名
-//     nashuiren_code =  models.CharField(max_length=30,verbose_name="纳税人识别号")#纳税人识别号
-//     kaipiao_date = models.DateField(null=True,blank=True,verbose_name="时间",default=datetime.datetime.now)#时间
-//     bh=models.CharField(max_length=30,verbose_name="发票号")#发票号
-//     money=  models.FloatField(default=0.0,verbose_name="含税金额")#含税金额
-//     shui=  models.FloatField(default=0.0,verbose_name="税额")#税额
-//     state =  models.CharField(max_length=30,verbose_name="发票入账情况",null=True,blank=True)#发票入账情况
 import React, { Component } from 'react';
-//import UsePacks2 from "./UsePacks2";
 import {Modal} from "react-bootstrap";
-//import Modal from './MyModal';
 import update from 'immutability-helper';
 import Client from './Client';
-//import Autocomplete from './Autocomplete';
 import Autosuggest from 'react-autosuggest';
-import './react-datetime.css'
 var moment = require('moment');
+// eslint-disable-next-line 
 var locale=require('moment/locale/zh-cn');
 var DateTime=require('react-datetime');
 class ContactEdit2New  extends Component{
@@ -273,7 +259,9 @@ class ContactEdit2New  extends Component{
     //   options_channels.push({label:o[i],value:o[i]});
     // }
     return (
-        <Modal show={this.state.showModal} onHide={this.close}  dialogClassName="custom-modal">
+        <Modal show={this.state.showModal} 
+        onHide={this.close}  
+                dialogClassName="modal-90w">
           <Modal.Header closeButton>
             <Modal.Title>编辑发票信息</Modal.Title>
           </Modal.Header>

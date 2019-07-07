@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap/dist/css/bootstrap-theme.css';
-import {Navbar,Nav,NavItem,MenuItem,DropdownButton} from "react-bootstrap";
+import {Button,Navbar,DropdownButton,Dropdown} from "react-bootstrap";
 import update from 'immutability-helper';
 import Client from './Client';
-import ExampleModal from './ExampleModal';
 import ContactEdit2New from './ContactEdit2New';
+import DlgLogin from './DlgLogin';
 // import DlgWait from './DlgWait';
 // import DlgFolder from './DlgFolder';
 // //import DlgFolder2 from './DlgFolder2';
@@ -19,49 +18,57 @@ import ContactEdit2New from './ContactEdit2New';
 import "./autosuggest.css"
 var host="";
 class App extends Component {
-  mystate = {
-    start:0,
-    limit:10,
-    total:0,
-    baoxiang:"",
-    logined: false,
-    search:""
-  }
-   state = {
-    contacts: [],
-    limit:10,
-    user: "AnonymousUser",
-    start:0,
-    total:0,
-    search:"",
-    start_input:1,
-    currentIndex:null,
-    baoxiang:"",
-  }
   componentDidMount=() => {
     this.load_data();
   }
+  constructor(){
+    super()
+    this.state = {
+      connect_error:false,
+      contacts: [],
+      limit:10,
+      user: "AnonymousUser",
+      start:0,
+      total:0,
+      search:"",
+      start_input:1,
+      currentIndex:null,
+      baoxiang:"",
+    };
+    this.dlglogin=React.createRef();
+  }
   load_data=()=>{
     Client.contacts(
-      { start:this.mystate.start,
-        limit:this.mystate.limit,
-        search:this.mystate.search,
-        baoxiang:this.mystate.baoxiang,
+      { start:this.state.start,
+        limit:this.state.limit,
+        search:this.state.search,
+        baoxiang:this.state.baoxiang,
       }, 
       (contacts) => {
         var user=contacts.user;
         if(user===undefined){
           user="AnonymousUser"
         }
-        this.mystate.total=contacts.total;//because async ,mystate set must before state;
         this.setState({
           contacts: contacts.data, //.slice(0, MATCHING_ITEM_LIMIT),
-          limit:this.mystate.limit,
+          limit:this.state.limit,
           user: user,
           total:contacts.total,
-          start:this.mystate.start
+          start:this.state.start
         });
+    },
+      error => {
+        // console.log(typeof(error));
+        console.log(error);
+        if (error instanceof SyntaxError) {
+          this.openDlgLogin();
+        } else {
+          this.setState({ connect_error: true });
+        }
     });
+  };
+  openDlgLogin = () => {
+    this.dlglogin.current.open();
   };
   handleContactChange = (idx,contact) => {
     console.log(idx);
@@ -105,25 +112,24 @@ class App extends Component {
     });
   };
   handleSearchChange = (e) => {
-    this.mystate.search=e.target.value;
-    this.setState({search:this.mystate.search});
+    this.setState({search:e.target.value});
   };
   handlePrev = (e) => {
-    this.mystate.start=this.mystate.start-this.mystate.limit;
-    if(this.mystate.start<0) {this.mystate.start=0;}
+    this.state.start=this.state.start-this.state.limit;
+    if(this.state.start<0) {this.state.start=0;}
     this.load_data();
   };
   search = (e) => {
-    this.mystate.start=0;
+    this.state.start=0;
     this.load_data();
   };
   jump=()=>{
-    this.mystate.start=parseInt(this.state.start_input,10)-1;
-    if(this.mystate.start>this.mystate.total-this.mystate.limit) 
-        this.mystate.start=this.mystate.total-this.mystate.limit;//total >limit
-    if(this.mystate.start<0)
+    this.state.start=parseInt(this.state.start_input,10)-1;
+    if(this.state.start>this.state.total-this.state.limit) 
+        this.state.start=this.state.total-this.state.limit;//total >limit
+    if(this.state.start<0)
     {
-      this.mystate.start=0;
+      this.state.start=0;
     }
     this.load_data();
   };
@@ -136,19 +142,18 @@ class App extends Component {
     window.open(host+"/parts/showcontact/?id="+contactid, "detail", 'height=800,width=800,resizable=yes,scrollbars=yes');
   }
   handleNext = (e) => {
-    this.mystate.start=this.mystate.start+this.mystate.limit;
-    if(this.mystate.start>this.mystate.total-this.mystate.limit) 
-        this.mystate.start=this.mystate.total-this.mystate.limit;//total >limit
-    if(this.mystate.start<0)
+    this.state.start=this.state.start+this.state.limit;
+    if(this.state.start>this.state.total-this.state.limit) 
+        this.state.start=this.state.total-this.state.limit;//total >limit
+    if(this.state.start<0)
     {
-      this.mystate.start=0;
+      this.state.start=0;
     }
     this.load_data();
   };
   onSelectBaoxiang=(e) => {
-    this.mystate.start=0;
-    this.mystate.baoxiang=e;
-    this.setState({baoxiang:e});
+    this.state.start=0;
+    this.state.baoxiang=e;
     this.load_data();
   }
   auto_change=(event, value)=>{
@@ -236,13 +241,13 @@ class App extends Component {
         <td>{contact.danwei}</td>
         <td>{contact.name}</td>
         <td>
-          <a onClick={()=>this.handleEdit(idx)}>{contact.bh}</a>
-          <DropdownButton title="" dropup id="id_dropdown3">
-            <MenuItem onSelect={()=>this.opendlgurl("/rest/updateMethod",this,idx,{id:contact.id})}>更新方法</MenuItem>
-            <MenuItem onSelect={()=>this.opendlgwait(contact.id)}>全部文件</MenuItem>
-            <MenuItem onSelect={()=>this.opendlgcheck(contact.id,contact.yiqibh)}>核对备料计划</MenuItem>
-            <MenuItem onSelect={()=>this.opendlgfolder(contact.id)}>资料文件夹</MenuItem>
-            <MenuItem onSelect={() => this.onDetailClick(contact.id)}>详细</MenuItem>
+          <Button variant="light" onClick={()=>this.handleEdit(idx)}>{contact.bh}</Button>
+          <DropdownButton title="">
+            <Dropdown.Item onSelect={()=>this.opendlgurl("/rest/updateMethod",this,idx,{id:contact.id})}>更新方法</Dropdown.Item>
+            <Dropdown.Item onSelect={()=>this.opendlgwait(contact.id)}>全部文件</Dropdown.Item>
+            <Dropdown.Item onSelect={()=>this.opendlgcheck(contact.id,contact.yiqibh)}>核对备料计划</Dropdown.Item>
+            <Dropdown.Item onSelect={()=>this.opendlgfolder(contact.id)}>资料文件夹</Dropdown.Item>
+            <Dropdown.Item onSelect={() => this.onDetailClick(contact.id)}>详细</Dropdown.Item>
           </DropdownButton>
         </td>
         <td>{contact.duifangdanwei}</td>
@@ -260,7 +265,7 @@ class App extends Component {
     var hasnext=true;
     let prev;
     let next;
-    //console.log(this.mystate);
+    //console.log(this.state);
     //console.log(this.state);
     if(this.state.start===0){
       hasprev=false;
@@ -271,19 +276,30 @@ class App extends Component {
       hasnext=false;
     }
     if (hasprev){
-      prev=(<a onClick={this.handlePrev}>前一页</a>);
+      prev=(<Button onClick={this.handlePrev}>前一页</Button>);
     }
     else{
       prev=null;
     }
     if(hasnext){
-      next=(<a onClick={this.handleNext}>后一页</a>);
+      next=(<Button onClick={this.handleNext}>后一页</Button>);
     }
     else{
       next=null;
     }
     return (
     <div id="todoapp" className="table-responsive">
+    <div
+          align="center"
+          style={{
+            display: this.state.connect_error ? '' : 'none',
+            textAlign: 'center',
+            color: 'red',
+          }}
+        >
+          !!!!!!!!!!连接错误,服务器未运行!!!!!!!
+        </div>
+    <DlgLogin ref={this.dlglogin} onLoginSubmit={this.onLoginSubmit} />
     {
     // <DlgItems ref="dlgitems" />
     // <DlgPacks ref="dlgpacks" />
@@ -296,34 +312,37 @@ class App extends Component {
     // <DlgUrl ref="dlgurl" />
    }
     <ContactEdit2New ref="contactedit" parent={this}   index={this.state.currentIndex} title="编辑"  />
-    <Navbar className="navbar-inverse">
-    <Navbar.Header>
+    <Navbar collapseOnSelect expand="lg" className="navbar-dark bg-dark">
       <Navbar.Brand>
-        <a>发票明细</a>
-      </Navbar.Brand>
-    </Navbar.Header>
-    <Nav>
-      <NavItem eventKey={1} href="#">发票</NavItem>
-      {
-      //<NavItem eventKey={2} href="#" onClick={this.openDlgPacks}>包</NavItem>
-      //<NavItem eventKey={3} href="#" onClick={this.openDlgItems}>备件</NavItem>
-      //<NavItem eventKey={4} href="#" onClick={this.openDlgCopyPack}>复制包</NavItem>
-      //<NavItem eventKey={5} href="#" onClick={this.openDlgStat}>统计</NavItem>
-      }
-    </Nav>
+            <span>发票明细</span>
+          </Navbar.Brand>
   </Navbar>
     <table>
     <tbody>
     <tr>
    <td>
-     <DropdownButton title={this.state.user} id="id_dropdown1">
-        <li hidden={this.state.user!=="AnonymousUser"}>
-          <ExampleModal onLoginSubmit={this.onLoginSubmit} title="登录" />
-        </li>
-        <li  hidden={this.state.user==="AnonymousUser"} >
-          <a onClick={this.handleLogout}>注销</a>
-        </li>
-     </DropdownButton>
+     <DropdownButton
+            variant="light"
+            title={this.state.user}
+            id="id_dropdown1"
+          >
+            <Dropdown.Item
+              style={{
+                display: this.state.user !== 'AnonymousUser' ? 'none' : 'block',
+              }}
+              onSelect={this.openDlgLogin}
+            >
+              登录
+            </Dropdown.Item>
+            <Dropdown.Item
+              style={{
+                display: this.state.user === 'AnonymousUser' ? 'none' : 'block',
+              }}
+              onSelect={this.handleLogout}
+            >
+              注销
+            </Dropdown.Item>
+          </DropdownButton>
   </td>
   <td>
         <input type="text" value={this.state.search}  placeholder="姓名 or 发票号 or 单位" onChange={this.handleSearchChange} />
@@ -341,10 +360,10 @@ class App extends Component {
   //  <td>
   //  <label>过滤</label>
   //   <DropdownButton title={this.state.baoxiang} id="id_dropdown2">
-  //     <MenuItem onSelect={() => this.onSelectBaoxiang("马红权")}>马红权</MenuItem>
-  //     <MenuItem onSelect={() => this.onSelectBaoxiang("陈旺")}>陈旺</MenuItem>
-  //     <MenuItem onSelect={() => this.onSelectBaoxiang("吴振宁")}>吴振宁</MenuItem>
-  //     <MenuItem onSelect={() => this.onSelectBaoxiang("")}>*</MenuItem>
+  //     <Dropdown.Item onSelect={() => this.onSelectBaoxiang("马红权")}>马红权</Dropdown.Item>
+  //     <Dropdown.Item onSelect={() => this.onSelectBaoxiang("陈旺")}>陈旺</Dropdown.Item>
+  //     <Dropdown.Item onSelect={() => this.onSelectBaoxiang("吴振宁")}>吴振宁</Dropdown.Item>
+  //     <Dropdown.Item onSelect={() => this.onSelectBaoxiang("")}>*</Dropdown.Item>
   //   </DropdownButton>
   // </td>
   }
