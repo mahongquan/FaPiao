@@ -70,6 +70,13 @@ class App extends Component {
   openDlgLogin = () => {
     this.dlglogin.current.open();
   };
+    keypress = e => {
+    if (e.which !== 13) return;
+    // console.log('你按了回车键...');
+
+    this.search();
+  };
+
   handleContactChange = (idx,contact) => {
     console.log(idx);
     let contacts2
@@ -345,7 +352,7 @@ class App extends Component {
           </DropdownButton>
   </td>
   <td>
-        <input type="text" value={this.state.search}  placeholder="姓名 or 发票号 or 单位" onChange={this.handleSearchChange} />
+        <input type="text" onKeyPress={this.keypress} value={this.state.search}  placeholder="姓名 or 发票号 or 单位" onChange={this.handleSearchChange} />
         <button id="id_bt_search" className="btm btn-info" onClick={this.search}>搜索
         <span className="glyphicon glyphicon-search" aria-hidden="true"></span>
         </button>
